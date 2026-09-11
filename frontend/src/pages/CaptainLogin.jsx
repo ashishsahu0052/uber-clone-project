@@ -1,19 +1,35 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 import {useState} from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { CaptainDataContext } from '../context/CaptainContext'
 
 const CaptainLogin = () => {
         const [email, setEmail] = useState('')
         const [password, setPassword] = useState('')
-       const [captainData, setCaptainData] = useState('')
-        const submitHandler = (e) =>{
+        const {captain , setCaptain} = React.useContext(CaptainDataContext)
+        const navigate = useNavigate()
+
+        const submitHandler = async  (e) =>{
             e.preventDefault()
-            setCaptainData({
-                email:email,
-                password:password
-            })
+            const captain = {
+                email: email,
+                password: password
+            }
+
+            const response  = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captain)
+            if(response.status === 200) {
+                const data = response.data
+                const token = data.token
+                localStorage.setItem('token', token)
+                setCaptain(data.captain)
+                navigate('/captain-home')
+
+            }else{
+                console.log(response.data.message)
+            }
     
-           // console.log(userData)
     
     
             setEmail('')
@@ -28,6 +44,7 @@ const CaptainLogin = () => {
                 submitHandler(e)
             }}>
                 <h3 className="text-lg font-semibold text-gray-800">Write your email</h3>
+                
                 <input required 
                 value = {email}
                 onChange= {(e)=>{
@@ -48,7 +65,7 @@ const CaptainLogin = () => {
                 className="w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-black" type="password" placeholder='password' />
 
                 <button className="w-full rounded-md bg-black px-4 py-2 font-semibold text-white hover:bg-gray-800">Login</button>
-                <p className="text-center text-sm text-gray-600">join the fleet <Link className="font-semibold text-blue-600 hover:underline" to="/signup">Register as captain</Link></p>
+                <p className="text-center text-sm text-gray-600">join the fleet <Link className="font-semibold text-blue-600 hover:underline" to="/captain-signup">Register as captain</Link></p>
             </form>
         </div>
         <div className="mx-auto mt-4 max-w-md flex items-center justify-center">
