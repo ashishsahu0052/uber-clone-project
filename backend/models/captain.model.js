@@ -36,7 +36,7 @@ const captainSchema = new mongoose.Schema({
         enum:['active' , 'inactive'],
         default: 'inactive'
     },
-    vechicle:{
+    vehicle:{
         color:{
             type: String,
             required: true
@@ -50,7 +50,7 @@ const captainSchema = new mongoose.Schema({
             required: true,
             min: [1, 'Capacity must be at least 1'],
         },
-        vechicleType:{
+        vehicleType:{
             type: String,
             required: true,
             enum: ['car', 'bike', 'truck'],
@@ -80,5 +80,5 @@ captainSchema.statics.hashPassword = async function (password) {
     return await bcrypt.hash(password, salt);
 }
 
-const catainModel = mongoose.model('Captain', captainSchema)
-module.exports = catainModel
+const captainModel = mongoose.model('Captain', captainSchema)
+module.exports = captainModel

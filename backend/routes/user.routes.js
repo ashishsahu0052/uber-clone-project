@@ -30,8 +30,6 @@ router.post(
   ],
   userController.loginUser,
 );
-console.log("authUser:", authMiddleware.authUser);
-console.log("getProfile:", userController.getUserProfile);
 
 router.get("/profile", authMiddleware.authUser, userController.getUserProfile);
 
