@@ -1,7 +1,8 @@
 const axios = require("axios");
 
+
 module.exports.getAddress = async (address) => {
-    
+
     try {
         const response = await axios.get(
             "https://nominatim.openstreetmap.org/search",
@@ -16,7 +17,7 @@ module.exports.getAddress = async (address) => {
                 },
             }
         );
-         
+
 
 
         if (!response.data || response.data.length === 0) {
@@ -33,34 +34,67 @@ module.exports.getAddress = async (address) => {
         throw new Error("Unable to get location");
     }
 };
-module.exports.getDistanceTime = async ( origin , destination) =>{
-  //  console.log(origin,destination)
+module.exports.getDistanceTime = async (pickup, destination) => {
+    console.log(pickup, destination)
 
-    try{
+    try {
+        const pickupCoordinates = typeof pickup === 'string' ? await module.exports.getAddress(pickup) : pickup;
+        const destinationCoordinates = typeof destination === 'string' ? await module.exports.getAddress(destination) : destination;
+
         const response = await axios.get(
-         `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}`,
-         {
-            params:{
-                overview:false
+            `https://router.project-osrm.org/route/v1/driving/${pickupCoordinates.lng},${pickupCoordinates.lat};${destinationCoordinates.lng},${destinationCoordinates.lat}`,
+            {
+                params: {
+                    overview: false
+                }
             }
-         }
 
-      )
-      if(response.data.code != "Ok" ){
-        throw new Error("unable to fetch the distance ")
-      }
-      const route = response.data.routes[0];
+        )
+        if (response.data.code != "Ok") {
+            throw new Error("unable to fetch the distance ")
+        }
+        const route = response.data.routes[0];
 
-    return {
-            distance: route.distance/1000,
-            duration: Math.round(route.duration/60)
+        return {
+            distance: route.distance / 1000,
+            duration: Math.round(route.duration / 60),
+            time: Math.round(route.duration / 60)
         };
-        
-    }catch(error){
+
+    } catch (error) {
         console.error("OSRM error:", error.message);
         throw new Error("Unable to calculate distance and time");
     }
-    
 
-    
+
+
 }
+
+module.exports.getSuggestion = async (input) => {
+    if (!input) {
+        throw new Error('query is required')
+    }
+    try {
+        const response = await axios.get(
+            "https://api.locationiq.com/v1/autocomplete",
+            {
+                params: {
+                    key: process.env.LOCATIONIQ_API_KEY || "pk.7841ab341432d615f3118584d51e9e69",
+                    q: input,
+                    limit: 5,
+                    countrycodes: "in"
+                }
+            }
+        );
+
+        return response.data.map(item => item.display_name).filter(Boolean);
+
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            return [];
+        }
+        console.error("LocationIQ error:", error.message);
+        throw new Error("unable to get suggetions");
+    }
+}
+
