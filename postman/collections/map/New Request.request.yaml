@@ -1,0 +1,13 @@
+$kind: http-request
+url: 'http://localhost:4000/maps/get-distance-time?pickup=Red Fort, Delhi, India&destination=India Gate, New Delhi, India'
+method: GET
+queryParams:
+  - key: pickup
+    value: 'Red Fort, Delhi, India'
+    disabled: false
+    description: ""
+  - key: destination
+    value: 'India Gate, New Delhi, India'
+    disabled: false
+    description: ""
+order: 1790150326760

@@ -1,40 +1,61 @@
-import React from 'react'
-import axios from 'axios'
-import { useEffect } from 'react'
-import { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { CaptainDataContext } from '../context/CaptainContext'
+import { SocketContext } from '../context/SocketContext'
 import { useNavigate } from 'react-router-dom'
-const CaptainProtectWrapper = ({children}) => {
+import axios from 'axios'
+
+const CaptainProtectWrapper = ({ children }) => {
     const token = localStorage.getItem('token')
-    const [isLoading, setIsLoadning] = React.useState(true)
-    const {captain, setCaptain} = React.useContext(CaptainDataContext)
     const navigate = useNavigate()
+    const { captain, setCaptain } = useContext(CaptainDataContext)
+    const { socket } = useContext(SocketContext)
+    const [isLoading, setIsLoading] = useState(true)
+
     useEffect(() => {
         if (!token) {
             navigate('/captain-login')
+            return
         }
-    }, [token, navigate])
 
-    axios.get(`${import.meta.env.VITE_BASE_URL}/captains/profile`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    }).then((response) => {
-        if (response.status === 200) {
-            // Captain is authenticated, you can access the profile data here
-            setCaptain(response.data)
-            setIsLoadning(false)
-        }
-    }).catch((error) => {
-        console.error('Error fetching captain profile:', error)
-        localStorage.removeItem('token')
-        navigate('/captain-login')
-    })
+        axios.get(`${import.meta.env.VITE_BASE_URL}/captains/profile`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then(response => {
+            if (response.status === 200) {
+                setCaptain(response.data.captain)
+                setIsLoading(false)
+            }
+        }).catch(err => {
+            console.error("Error fetching captain profile:", err)
+            localStorage.removeItem('token')
+            navigate('/captain-login')
+        })
+    }, [token, navigate, setCaptain])
 
-    
-  return (
-    <div>{children}</div>
-  )
+    useEffect(() => {
+        if (captain && captain._id && socket) {
+            socket.emit('join', { userType: 'captain', userId: captain._id })
+        }
+    }, [captain, socket])
+
+    if (!token) {
+        return null
+    }
+
+    if (isLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center font-medium text-lg">
+                Loading...
+            </div>
+        )
+    }
+
+    return (
+        <>
+            {children}
+        </>
+    )
 }
 
 export default CaptainProtectWrapper

@@ -1,0 +1,24 @@
+$kind: http-request
+name: New Request
+url: "{{base}}users/register"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"fullname\":{\r
+
+    \        \"firstname\": \"test\",\r
+
+    \        \"lastname\":\"third\"\r
+
+    \r
+
+    \    },\r
+
+    \    \"email\":\"test33@gmail.com\",\r
+
+    \    \"password\":\"test3@123\"\r
+
+    }"
+order: 1788617805186
