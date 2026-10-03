@@ -90,10 +90,17 @@ function sendMessageToCaptains(event, data) {
     }
 }
 
+function broadcastEvent(event, data) {
+    if (io) {
+        io.emit(event, data);
+    }
+}
+
 module.exports = {
     initializeSocket,
     sendMessageToSocketId,
     sendMessageToUser,
     sendMessageToCaptain,
-    sendMessageToCaptains
+    sendMessageToCaptains,
+    broadcastEvent
 };

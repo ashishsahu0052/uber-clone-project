@@ -1,12 +1,12 @@
 # Graph Report - uber  (2026-10-03)
 
 ## Corpus Check
-- 57 files · ~13,517 words
+- 57 files · ~13,514 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 4 file(s) not represented in the graph (top: .css 2, .prob 1, (none) 1)
 
 ## Summary
-- 308 nodes · 494 edges · 20 communities (13 shown, 7 thin omitted)
+- 307 nodes · 492 edges · 21 communities (14 shown, 7 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 14 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
@@ -19,12 +19,13 @@
 - App.jsx
 - app.js
 - frontend/package.json
-- auth.middleware.js
+- backend/package.json
 - ride.controller.js
 - captain.controller.js
+- user.controller.js
 - ride.service.js
 - Home.jsx
-- backend/package.json
+- dependencies
 - dependencies
 - Postman Workspace Resources
 - package.json
@@ -69,11 +70,11 @@
 - **Frontend Static Brand Assets** — frontend_public_favicon_svg, frontend_public_icons_svg, frontend_src_assets_hero_png [INFERRED 0.85]
 - **User API Suite** — postman_collections_user_login_request_user_login, postman_collections_user_profile_request_user_profile, postman_collections_user_new_request_1_request_user_register [INFERRED 0.85]
 
-## Communities (20 total, 7 thin omitted)
+## Communities (21 total, 7 thin omitted)
 
 ### Community 0 - "App.jsx"
-Cohesion: 0.10
-Nodes (34): Frontend HTML Shell, App Favicon SVG, App(), CaptainDetails(), ConfirmRidePopUp(), FinishRide(), RidePopUp(), CaptainContext() (+26 more)
+Cohesion: 0.11
+Nodes (29): Frontend HTML Shell, App Favicon SVG, App(), CaptainDetails(), ConfirmRidePopUp(), RidePopUp(), CaptainContext(), CaptainDataContext (+21 more)
 
 ### Community 1 - "app.js"
 Cohesion: 0.05
@@ -83,9 +84,9 @@ Nodes (37): app, captainRoutes, connectToDb, cookieParser, cors, dotenv, express
 Cohesion: 0.10
 Nodes (23): axios, name, private, scripts, build, dev, lint, preview (+15 more)
 
-### Community 3 - "auth.middleware.js"
-Cohesion: 0.06
-Nodes (28): blacklistModel, logoutUser(), userModel, userService, { validationResult }, mongoose, blacklistModel, captainModel (+20 more)
+### Community 3 - "backend/package.json"
+Cohesion: 0.05
+Nodes (34): mongoose, blacklistModel, captainModel, jwt, userModel, blacklistTokenSchema, mongoose, bcrypt (+26 more)
 
 ### Community 4 - "ride.controller.js"
 Cohesion: 0.13
@@ -95,17 +96,21 @@ Nodes (22): confirmRide(), createRide(), endRide(), getFare(), getPendingRides()
 Cohesion: 0.10
 Nodes (13): blacklistModel, captainModel, captainService, { validationResult }, authmiddleware, { body }, captainController, express (+5 more)
 
+### Community 6 - "user.controller.js"
+Cohesion: 0.18
+Nodes (6): blacklistModel, logoutUser(), userModel, userService, { validationResult }, userModel
+
 ### Community 7 - "ride.service.js"
-Cohesion: 0.16
-Nodes (8): axios, getAddress(), getDistanceTime(), createRide(), getFare(), getOtp(), mapService, rideModel
+Cohesion: 0.13
+Nodes (10): mongoose, rideSchema, axios, getAddress(), getDistanceTime(), createRide(), getFare(), getOtp() (+2 more)
 
 ### Community 8 - "Home.jsx"
-Cohesion: 0.22
-Nodes (7): Uber Home Hero Graphic, ConfirmRide(), LocationSearchPanel(), LookingForDriver(), VehiclePanel(), WaitingForDriver(), Home()
+Cohesion: 0.14
+Nodes (11): Uber Home Hero Graphic, ConfirmRide(), FinishRide(), LocationSearchPanel(), LookingForDriver(), VehiclePanel(), WaitingForDriver(), CaptainRiding() (+3 more)
 
-### Community 9 - "backend/package.json"
-Cohesion: 0.07
-Nodes (26): author, dependencies, axios, bcrypt, cookie-parser, cors, dotenv, express (+18 more)
+### Community 9 - "dependencies"
+Cohesion: 0.17
+Nodes (12): dependencies, axios, bcrypt, cookie-parser, cors, dotenv, express, express-validator (+4 more)
 
 ### Community 10 - "dependencies"
 Cohesion: 0.18
@@ -131,8 +136,8 @@ Nodes (10): devDependencies, eslint, @eslint/js, eslint-plugin-react-hooks, esli
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `express-validator` connect `app.js` to `backend/package.json`, `auth.middleware.js`, `ride.controller.js`, `captain.controller.js`?**
-  _High betweenness centrality (0.280) - this node is a cross-community bridge._
+- **Why does `express-validator` connect `app.js` to `backend/package.json`, `ride.controller.js`, `captain.controller.js`, `user.controller.js`?**
+  _High betweenness centrality (0.281) - this node is a cross-community bridge._
 - **Why does `react` connect `App.jsx` to `Home.jsx`, `frontend/package.json`?**
   _High betweenness centrality (0.123) - this node is a cross-community bridge._
 - **Why does `react-router-dom` connect `App.jsx` to `Home.jsx`, `frontend/package.json`?**
@@ -140,7 +145,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `dotenv`, `cors`, `express` to the rest of the system?**
   _148 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.09586466165413533 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1126530612244898 - nodes in this community are weakly interconnected._
 - **Should `app.js` be split into smaller, more focused modules?**
   _Cohesion score 0.053156146179401995 - nodes in this community are weakly interconnected._
 - **Should `frontend/package.json` be split into smaller, more focused modules?**

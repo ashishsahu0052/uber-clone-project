@@ -32,34 +32,35 @@ const CaptainHome = () => {
     }
   }, [location.state])
 
-  // Fetch pending requests and listen to socket events
+  // Emit join event for captain so socket rooms are properly registered
   useEffect(() => {
-    const fetchPendingRides = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/pending`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-        setPendingRides(response.data)
-      } catch (err) {
-        console.error("Error fetching pending rides:", err)
-      }
+    if (!socket || !captain?._id) return
+
+    socket.emit('join', { userType: 'captain', userId: captain._id })
+
+    const handleConnect = () => {
+      socket.emit('join', { userType: 'captain', userId: captain._id })
     }
 
-    fetchPendingRides()
+    socket.on('connect', handleConnect)
+    return () => {
+      socket.off('connect', handleConnect)
+    }
+  }, [socket, captain])
 
+  // Listen to socket events for real-time ride requests only
+  useEffect(() => {
     if (!socket) return
 
     socket.on('new-ride', (newRide) => {
-      console.log('Captain received new-ride:', newRide)
+      console.log('Captain received real-time new-ride:', newRide)
       setPendingRides(prev => {
         const exists = prev.some(r => r._id === newRide._id)
         if (exists) return prev
         return [newRide, ...prev]
       })
 
-      // Prompt captain with popup for the incoming ride
+      // Prompt captain with popup for the incoming real-time ride
       setCurrentRide(newRide)
       setRidePopupPanel(true)
     })
@@ -113,6 +114,7 @@ const CaptainHome = () => {
     if (targetId) {
       setPendingRides(prev => prev.filter(r => r._id !== targetId))
     }
+    setCurrentRide(null)
   }
 
   useGSAP(function () {

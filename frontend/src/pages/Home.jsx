@@ -37,32 +37,71 @@ const Home = () => {
   const [ride, setRide] = useState(null)
   const [isLoadingFare, setIsLoadingFare] = useState(false)
   const [isCreatingRide, setIsCreatingRide] = useState(false)
+  const currentRideIdRef = useRef(null)
 
   const { socket } = useContext(SocketContext)
   const { user } = useContext(UserDataContext)
   const navigate = useNavigate()
 
+  // Ensure user joins their private socket room on mount, on user load, and upon reconnect
+  useEffect(() => {
+    if (!socket || !user?._id) return
+
+    socket.emit('join', { userType: 'user', userId: user._id })
+
+    const handleConnect = () => {
+      socket.emit('join', { userType: 'user', userId: user._id })
+    }
+
+    socket.on('connect', handleConnect)
+    return () => {
+      socket.off('connect', handleConnect)
+    }
+  }, [socket, user?._id])
+
   useEffect(() => {
     if (!socket) return
 
-    socket.on('ride-confirmed', (confirmedRide) => {
+    const handleRideConfirmed = (confirmedRide) => {
       console.log('User received ride-confirmed:', confirmedRide)
+
+      const belongsToThisRide = currentRideIdRef.current && confirmedRide?._id === currentRideIdRef.current
+      const rideUserId = confirmedRide?.userId?._id || confirmedRide?.userId
+      const belongsToThisUser = user?._id && rideUserId && rideUserId.toString() === user._id.toString()
+
+      // If this client initiated a ride or is the user on the ride, proceed
+      if (currentRideIdRef.current && !belongsToThisRide && !belongsToThisUser) {
+        return
+      }
+
       setRide(confirmedRide)
       setVehicleFound(false)
+      setConfirmRidePanel(false)
       setWaitingForDriver(true)
-    })
+    }
 
-    socket.on('ride-started', (startedRide) => {
+    const handleRideStarted = (startedRide) => {
       console.log('User received ride-started:', startedRide)
+      const belongsToThisRide = (currentRideIdRef.current && startedRide?._id === currentRideIdRef.current) || (ride?._id && startedRide?._id === ride._id)
+      const rideUserId = startedRide?.userId?._id || startedRide?.userId
+      const belongsToThisUser = user?._id && rideUserId && rideUserId.toString() === user._id.toString()
+
+      if (currentRideIdRef.current && !belongsToThisRide && !belongsToThisUser) {
+        return
+      }
+
       setWaitingForDriver(false)
       navigate('/riding', { state: { ride: startedRide } })
-    })
+    }
+
+    socket.on('ride-confirmed', handleRideConfirmed)
+    socket.on('ride-started', handleRideStarted)
 
     return () => {
-      socket.off('ride-confirmed')
-      socket.off('ride-started')
+      socket.off('ride-confirmed', handleRideConfirmed)
+      socket.off('ride-started', handleRideStarted)
     }
-  }, [socket, navigate])
+  }, [socket, navigate, user?._id, ride?._id])
 
   const handlePickupChange = async (e) => {
     const value = e.target.value
@@ -143,7 +182,9 @@ const Home = () => {
         }
       })
 
-      setRide(response.data.ride)
+      const newRide = response.data.ride
+      setRide(newRide)
+      currentRideIdRef.current = newRide?._id
       setConfirmRidePanel(false)
       setVehicleFound(true)
     } catch (error) {
@@ -319,6 +360,7 @@ const Home = () => {
           createRide={createRide}
           isCreatingRide={isCreatingRide}
           setConfirmRidePanel={setConfirmRidePanel}
+          setVehiclePanel={setVehiclePanel}
           setVehicleFound={setVehicleFound}
         />
       </div>
@@ -330,6 +372,7 @@ const Home = () => {
           fare={fare}
           vehicleType={vehicleType}
           setVehicleFound={setVehicleFound}
+          setConfirmRidePanel={setConfirmRidePanel}
         />
       </div>
 

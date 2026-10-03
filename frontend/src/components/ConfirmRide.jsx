@@ -13,6 +13,7 @@ const ConfirmRide = (props) => {
         <div>
             <h5 className='p-1 text-center w-[93%] absolute top-0 cursor-pointer' onClick={() => {
                 props.setConfirmRidePanel(false)
+                props.setVehiclePanel?.(true)
             }}><i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i></h5>
             <h3 className='text-2xl font-semibold mb-5'>Confirm your Ride</h3>
 

@@ -62,6 +62,7 @@ module.exports.createRide = async ({ userId, pickup, destination, vehicleType })
         destination,
         otp,
         fare,
+        vehicleType,
         status: 'pending',
         distance: fareObj.distance,
         duration: fareObj.duration

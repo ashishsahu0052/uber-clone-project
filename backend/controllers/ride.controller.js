@@ -1,6 +1,6 @@
 const rideService = require('../services/ride.service');
 const { validationResult } = require('express-validator');
-const { sendMessageToCaptains, sendMessageToUser, sendMessageToSocketId } = require('../socket');
+const { sendMessageToCaptains, sendMessageToUser, sendMessageToSocketId, broadcastEvent } = require('../socket');
 
 module.exports.createRide = async (req, res) => {
     const errors = validationResult(req);
@@ -57,12 +57,14 @@ module.exports.confirmRide = async (req, res) => {
         });
 
         // Notify user that their ride has been accepted by captain
-        if (ride.userId?._id) {
-            sendMessageToUser(ride.userId._id.toString(), 'ride-confirmed', ride);
+        const targetUserId = ride.userId?._id ? ride.userId._id.toString() : (ride.userId ? ride.userId.toString() : null);
+        if (targetUserId) {
+            sendMessageToUser(targetUserId, 'ride-confirmed', ride);
         }
         if (ride.userId?.socketId) {
             sendMessageToSocketId(ride.userId.socketId, { event: 'ride-confirmed', data: ride });
         }
+        broadcastEvent('ride-confirmed', ride);
 
         // Notify other captains that this ride was accepted
         sendMessageToCaptains('ride-taken', { rideId });
@@ -91,12 +93,14 @@ module.exports.startRide = async (req, res) => {
         });
 
         // Notify user that ride has officially started
-        if (ride.userId?._id) {
-            sendMessageToUser(ride.userId._id.toString(), 'ride-started', ride);
+        const targetUserId = ride.userId?._id ? ride.userId._id.toString() : (ride.userId ? ride.userId.toString() : null);
+        if (targetUserId) {
+            sendMessageToUser(targetUserId, 'ride-started', ride);
         }
         if (ride.userId?.socketId) {
             sendMessageToSocketId(ride.userId.socketId, { event: 'ride-started', data: ride });
         }
+        broadcastEvent('ride-started', ride);
 
         return res.status(200).json(ride);
     } catch (error) {
@@ -119,12 +123,14 @@ module.exports.endRide = async (req, res) => {
         });
 
         // Notify user that ride is completed
-        if (ride.userId?._id) {
-            sendMessageToUser(ride.userId._id.toString(), 'ride-ended', ride);
+        const targetUserId = ride.userId?._id ? ride.userId._id.toString() : (ride.userId ? ride.userId.toString() : null);
+        if (targetUserId) {
+            sendMessageToUser(targetUserId, 'ride-ended', ride);
         }
         if (ride.userId?.socketId) {
             sendMessageToSocketId(ride.userId.socketId, { event: 'ride-ended', data: ride });
         }
+        broadcastEvent('ride-ended', ride);
 
         return res.status(200).json(ride);
     } catch (error) {
