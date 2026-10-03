@@ -30,8 +30,25 @@ function initializeSocket(server) {
                     socket.join('captains');
                     socket.join(`captain_${userId}`);
                 }
+
+                if (data.rideId) {
+                    socket.join(`ride:${data.rideId}`);
+                }
             } catch (err) {
                 console.error("Error in join socket event:", err.message);
+            }
+        });
+
+        socket.on('join-ride', ({ rideId }) => {
+            if (rideId) {
+                socket.join(`ride:${rideId}`);
+                console.log(`Socket ${socket.id} joined room: ride:${rideId}`);
+            }
+        });
+
+        socket.on('update-location', ({ rideId, location }) => {
+            if (rideId && location) {
+                io.to(`ride:${rideId}`).emit('driver-location', location);
             }
         });
 

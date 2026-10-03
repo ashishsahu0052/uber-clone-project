@@ -8,6 +8,7 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
+import LiveRideMap from '../components/LiveRideMap';
 import { SocketContext } from '../context/SocketContext';
 import { UserDataContext } from '../context/userContext';
 
@@ -37,6 +38,7 @@ const Home = () => {
   const [ride, setRide] = useState(null)
   const [isLoadingFare, setIsLoadingFare] = useState(false)
   const [isCreatingRide, setIsCreatingRide] = useState(false)
+  const [detailsExpanded, setDetailsExpanded] = useState(true)
   const currentRideIdRef = useRef(null)
 
   const { socket } = useContext(SocketContext)
@@ -75,9 +77,16 @@ const Home = () => {
       }
 
       setRide(confirmedRide)
+      currentRideIdRef.current = confirmedRide?._id
       setVehicleFound(false)
       setConfirmRidePanel(false)
       setWaitingForDriver(true)
+      setDetailsExpanded(true)
+
+      // Join the dedicated ride room for live location streaming
+      if (confirmedRide?._id) {
+        socket.emit('join-ride', { rideId: confirmedRide._id })
+      }
     }
 
     const handleRideStarted = (startedRide) => {
@@ -253,94 +262,115 @@ const Home = () => {
 
   useGSAP(function () {
     if (waitingForDriver) {
-      gsap.to(waitingForDriverRef.current, {
-        transform: 'translateY(0)'
-      })
+      if (detailsExpanded) {
+        gsap.to(waitingForDriverRef.current, {
+          transform: 'translateY(0%)',
+          duration: 0.35,
+          ease: 'power2.out'
+        })
+      } else {
+        gsap.to(waitingForDriverRef.current, {
+          transform: 'translateY(70%)',
+          duration: 0.35,
+          ease: 'power2.out'
+        })
+      }
     } else {
       gsap.to(waitingForDriverRef.current, {
-        transform: 'translateY(100%)'
+        transform: 'translateY(100%)',
+        duration: 0.35
       })
     }
-  }, [waitingForDriver])
+  }, [waitingForDriver, detailsExpanded])
 
   return (
     <div className='h-screen relative overflow-hidden'>
       <img className='w-16 absolute left-5 top-5 z-10' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="Uber" />
-      <div className='h-screen w-screen'>
-        <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="Map" />
-      </div>
-
-      <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
-        <div className='min-h-[30%] p-6 bg-white relative rounded-t-3xl shadow-lg'>
-          <h5 ref={panelCloseRef} onClick={() => {
-            setPanelOpen(false)
-          }} className='absolute opacity-0 right-6 top-6 text-2xl cursor-pointer hover:text-gray-600'>
-            <i className="ri-arrow-down-wide-line"></i>
-          </h5>
-          <h4 className='text-2xl font-semibold'>Find a trip</h4>
-          <form className='relative py-3' onSubmit={(e) => {
-            e.preventDefault();
-            findTrip();
-          }}>
-            <div className="line absolute h-16 w-1 top-[42%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
-            <input
-              onClick={() => {
-                setPanelOpen(true)
-                setActiveField('pickup')
-              }}
-              value={pickup}
-              onChange={handlePickupChange}
-              className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full outline-none focus:ring-2 focus:ring-black'
-              type="text"
-              placeholder='Add a pick-up location'
-            />
-            <input
-              onClick={() => {
-                setPanelOpen(true)
-                setActiveField('destination')
-              }}
-              value={destination}
-              onChange={handleDestinationChange}
-              className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mt-3 outline-none focus:ring-2 focus:ring-black'
-              type="text"
-              placeholder='Enter your destination'
-            />
-
-            {/* Prominent Action Button after selecting pickup and destination */}
-            {pickup.trim().length > 0 && destination.trim().length > 0 && (
-              <button
-                type="button"
-                onClick={findTrip}
-                disabled={isLoadingFare}
-                className='w-full mt-4 bg-black hover:bg-gray-800 transition-all text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-md'
-              >
-                {isLoadingFare ? (
-                  <>
-                    <i className="ri-loader-4-line animate-spin text-lg"></i>
-                    <span>Calculating Fare...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Find Trip</span>
-                    <i className="ri-arrow-right-line text-lg"></i>
-                  </>
-                )}
-              </button>
-            )}
-          </form>
+      
+      {/* Live Map shown ONLY when captain is assigned; otherwise static map */}
+      {waitingForDriver && ride ? (
+        <div className='h-screen w-screen absolute inset-0 z-0'>
+          <LiveRideMap ride={ride} userType="user" />
         </div>
-
-        <div ref={panelRef} className='bg-white h-0 overflow-y-auto transition-all'>
-          <LocationSearchPanel
-            suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions}
-            setPanelOpen={setPanelOpen}
-            setVehiclePanel={setVehiclePanel}
-            setPickup={setPickup}
-            setDestination={setDestination}
-            activeField={activeField}
-          />
+      ) : (
+        <div className='h-screen w-screen'>
+          <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="Map" />
         </div>
-      </div>
+      )}
+
+      {!waitingForDriver && (
+        <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
+          <div className='min-h-[30%] p-6 bg-white relative rounded-t-3xl shadow-lg'>
+            <h5 ref={panelCloseRef} onClick={() => {
+              setPanelOpen(false)
+            }} className='absolute opacity-0 right-6 top-6 text-2xl cursor-pointer hover:text-gray-600'>
+              <i className="ri-arrow-down-wide-line"></i>
+            </h5>
+            <h4 className='text-2xl font-semibold'>Find a trip</h4>
+            <form className='relative py-3' onSubmit={(e) => {
+              e.preventDefault();
+              findTrip();
+            }}>
+              <div className="line absolute h-16 w-1 top-[42%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
+              <input
+                onClick={() => {
+                  setPanelOpen(true)
+                  setActiveField('pickup')
+                }}
+                value={pickup}
+                onChange={handlePickupChange}
+                className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full outline-none focus:ring-2 focus:ring-black'
+                type="text"
+                placeholder='Add a pick-up location'
+              />
+              <input
+                onClick={() => {
+                  setPanelOpen(true)
+                  setActiveField('destination')
+                }}
+                value={destination}
+                onChange={handleDestinationChange}
+                className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mt-3 outline-none focus:ring-2 focus:ring-black'
+                type="text"
+                placeholder='Enter your destination'
+              />
+
+              {/* Prominent Action Button after selecting pickup and destination */}
+              {pickup.trim().length > 0 && destination.trim().length > 0 && (
+                <button
+                  type="button"
+                  onClick={findTrip}
+                  disabled={isLoadingFare}
+                  className='w-full mt-4 bg-black hover:bg-gray-800 transition-all text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-md'
+                >
+                  {isLoadingFare ? (
+                    <>
+                      <i className="ri-loader-4-line animate-spin text-lg"></i>
+                      <span>Calculating Fare...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Find Trip</span>
+                      <i className="ri-arrow-right-line text-lg"></i>
+                    </>
+                  )}
+                </button>
+              )}
+            </form>
+          </div>
+
+          <div ref={panelRef} className='bg-white h-0 overflow-y-auto transition-all'>
+            <LocationSearchPanel
+              suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions}
+              setPanelOpen={setPanelOpen}
+              setVehiclePanel={setVehiclePanel}
+              setPickup={setPickup}
+              setDestination={setDestination}
+              activeField={activeField}
+            />
+          </div>
+        </div>
+      )}
 
       <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-8 rounded-t-3xl shadow-2xl'>
         <VehiclePanel
@@ -376,10 +406,12 @@ const Home = () => {
         />
       </div>
 
-      <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 rounded-t-3xl shadow-2xl'>
+      <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-4 rounded-t-3xl shadow-2xl'>
         <WaitingForDriver
           ride={ride}
           setWaitingForDriver={setWaitingForDriver}
+          isExpanded={detailsExpanded}
+          toggleExpand={() => setDetailsExpanded(prev => !prev)}
         />
       </div>
     </div>

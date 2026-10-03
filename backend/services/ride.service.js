@@ -82,8 +82,8 @@ module.exports.confirmRide = async ({ rideId, captainId }) => {
         { status: 'accepted', captain: captainId },
         { new: true }
     )
-    .populate('userId', 'fullname email socketId')
-    .populate('captain', 'fullname vehicle location socketId');
+        .populate('userId', 'fullname email socketId')
+        .populate('captain', 'fullname vehicle location socketId');
 
     if (!ride) {
         throw new Error("Ride not found or already accepted");

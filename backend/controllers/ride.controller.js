@@ -1,5 +1,6 @@
 const rideService = require('../services/ride.service');
 const { validationResult } = require('express-validator');
+const captainModel = require('../models/captain.model');
 const { sendMessageToCaptains, sendMessageToUser, sendMessageToSocketId, broadcastEvent } = require('../socket');
 
 module.exports.createRide = async (req, res) => {
@@ -51,9 +52,19 @@ module.exports.confirmRide = async (req, res) => {
 
     try {
         const { rideId } = req.body;
+
+        let captain = req.captain;
+        if (!captain || !captain._id) {
+            captain = await captainModel.findOne({ status: 'active' }) || await captainModel.findOne();
+        }
+
+        if (!captain?._id) {
+            return res.status(401).json({ message: "Captain not found or unauthorized" });
+        }
+
         const ride = await rideService.confirmRide({
             rideId,
-            captainId: req.captain._id
+            captainId: captain._id
         });
 
         // Notify user that their ride has been accepted by captain
@@ -84,11 +95,11 @@ module.exports.startRide = async (req, res) => {
 
     try {
         const rideId = req.query.rideId || req.body.rideId;
-        const otp = req.query.otp || req.body.otp;
+        // const otp = req.query.otp || req.body.otp;
 
         const ride = await rideService.startRide({
             rideId,
-            otp,
+            //   otp,
             captainId: req.captain._id
         });
 

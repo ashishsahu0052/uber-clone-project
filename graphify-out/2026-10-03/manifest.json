@@ -126,9 +126,9 @@
     "semantic_hash": "9cb006c8907c85def595a29d83d69aa9"
   },
   "backend/socket.js": {
-    "mtime": 1791039520.9058745,
-    "seen": 1791039873.5463398,
-    "ast_hash": "40c2638867c8fbfbb8b42d4e96303fc1",
+    "mtime": 1791042805.1024246,
+    "seen": 1791043088.614669,
+    "ast_hash": "9f8ee3f5d34d703d3690719744bb0b64",
     "semantic_hash": ""
   },
   "frontend/eslint.config.js": {
@@ -138,10 +138,10 @@
     "semantic_hash": "fa91453358b56681481f75f81d1bfccd"
   },
   "frontend/package.json": {
-    "mtime": 1790231005.8210795,
-    "seen": 1791037560.6072512,
-    "ast_hash": "cc2ec771d4b1a6f10c47a97b62cfb8aa",
-    "semantic_hash": "cc2ec771d4b1a6f10c47a97b62cfb8aa"
+    "mtime": 1791042787.516091,
+    "seen": 1791043088.6146717,
+    "ast_hash": "450c425e288d315ea29dbd9f4eca5e74",
+    "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
     "mtime": 1790231067.5518558,
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/WaitingForDriver.jsx": {
-    "mtime": 1791039811.3564248,
-    "seen": 1791039873.5463521,
-    "ast_hash": "d7ee54148e0e524c6910ef3df4a681ac",
+    "mtime": 1791042860.1505136,
+    "seen": 1791043088.6146853,
+    "ast_hash": "51f6752f9aec38ea7426838ef6aa1438",
     "semantic_hash": ""
   },
   "frontend/src/context/CaptainContext.jsx": {
@@ -228,9 +228,9 @@
     "semantic_hash": "2b67d6a56a7cc94886134db699891f7c"
   },
   "frontend/src/pages/CaptainHome.jsx": {
-    "mtime": 1791039598.717828,
-    "seen": 1791039873.5463574,
-    "ast_hash": "cb548135774cc8b0612cca6fd90f60c5",
+    "mtime": 1791043017.4460084,
+    "seen": 1791043088.6146903,
+    "ast_hash": "054f3e18409b052df82fbe90489b39c3",
     "semantic_hash": ""
   },
   "frontend/src/pages/CaptainLogin.jsx": {
@@ -270,9 +270,9 @@
     "semantic_hash": "85d8ed27fa46b376ae988d2dd3e4291f"
   },
   "frontend/src/pages/Home.jsx": {
-    "mtime": 1791039849.7619982,
-    "seen": 1791039873.5463643,
-    "ast_hash": "efd907efb3c8d1a84c6e77f51eaebe3f",
+    "mtime": 1791042944.1419113,
+    "seen": 1791043088.6146972,
+    "ast_hash": "491dadda4dcdeee1e23fc96218f7e473",
     "semantic_hash": ""
   },
   "frontend/src/pages/Riding.jsx": {
@@ -282,10 +282,10 @@
     "semantic_hash": "fbe4e0f22a00eda88faa7b6bc1d548ae"
   },
   "frontend/src/pages/Start.jsx": {
-    "mtime": 1789043785.0787792,
-    "seen": 1791037560.6072826,
-    "ast_hash": "c742f34de75850c33cb90ff69cf606f5",
-    "semantic_hash": "c742f34de75850c33cb90ff69cf606f5"
+    "mtime": 1791039885.8222218,
+    "seen": 1791040039.5317323,
+    "ast_hash": "ddf5ab793708d7cba46552e89b291bf8",
+    "semantic_hash": ""
   },
   "frontend/src/pages/UserLogin.jsx": {
     "mtime": 1790227930.652568,
@@ -454,5 +454,17 @@
     "seen": 1791037560.6073194,
     "ast_hash": "6d5180a782d64c8cf51ba01c2a2184d8",
     "semantic_hash": "6d5180a782d64c8cf51ba01c2a2184d8"
+  },
+  "frontend/src/components/DriverLocation.jsx": {
+    "mtime": 1791042817.1024487,
+    "seen": 1791043088.6146777,
+    "ast_hash": "632afc7bbef1e2e8db29a2e3248ba690",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/LiveRideMap.jsx": {
+    "mtime": 1791043053.476831,
+    "seen": 1791043088.6146803,
+    "ast_hash": "93859a43c9588c4308728caae59d9bbe",
+    "semantic_hash": ""
   }
 }

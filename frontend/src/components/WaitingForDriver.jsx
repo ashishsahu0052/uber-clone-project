@@ -22,16 +22,21 @@ const WaitingForDriver = (props) => {
 
   return (
     <div>
-      <h5 className='p-1 text-center w-[93%] absolute top-0 cursor-pointer' onClick={() => {
-        if (props.setWaitingForDriver) {
-          props.setWaitingForDriver(false)
-        } else if (props.waitingForDriver) {
-          props.waitingForDriver(false)
-        }
-      }}><i className="text-3xl text-gray-300 ri-arrow-down-wide-line"></i></h5>
+      {/* Top Handle / Arrow to expand or collapse details */}
+      <div 
+        className='py-1 text-center w-full cursor-pointer flex flex-col items-center justify-center hover:opacity-80 transition-opacity' 
+        onClick={() => {
+          if (props.toggleExpand) {
+            props.toggleExpand()
+          }
+        }}
+      >
+        <span className='w-12 h-1.5 bg-gray-300 rounded-full mb-1'></span>
+        <i className={`text-2xl text-gray-500 transition-transform ${props.isExpanded ? 'ri-arrow-down-s-line' : 'ri-arrow-up-s-line'}`}></i>
+      </div>
 
       {/* Driver info header */}
-      <div className='flex items-center justify-between mt-2 pt-2'>
+      <div className='flex items-center justify-between pt-1'>
         <img className='h-14 w-20 object-contain' src={vehicleImage} alt={vehicleType} />
         <div className='text-right'>
           <h2 className='text-lg font-bold capitalize text-gray-900'>{captainName}</h2>
@@ -72,10 +77,22 @@ const WaitingForDriver = (props) => {
             <i className="ri-currency-line text-xl text-yellow-600"></i>
             <div>
               <h3 className='text-lg font-bold text-gray-900'>₹{fare}</h3>
-              <p className='text-xs text-gray-500'>Pay Cash to Driver upon arrival</p>
+              <p className='text-xs text-gray-500'>Pay Cash or Online</p>
             </div>
           </div>
         </div>
+
+        {/* Phase 1 Make Payment Button (UI only, no functionality) */}
+        <button
+          type="button"
+          onClick={() => {
+            alert('Payment functionality will be enabled when the ride completes.')
+          }}
+          className='w-full mt-2 bg-black hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-xl text-base shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2'
+        >
+          <i className="ri-bank-card-line text-lg"></i>
+          <span>Make Payment (₹{fare})</span>
+        </button>
       </div>
     </div>
   )
