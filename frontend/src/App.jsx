@@ -33,7 +33,7 @@ const App = () => {
 
         <Route path="/captain-login" element={<CaptainLogin />} />
         <Route path="/captain-signup" element={<CaptainSignup />} />
-        
+
         <Route path="/user/logout" element={
           <UserProtectWrapper>
             <UserLogout />

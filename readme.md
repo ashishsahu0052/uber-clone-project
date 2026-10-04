@@ -422,34 +422,58 @@ The application utilizes **MongoDB** via **Mongoose**.
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Rider as Rider (User)
-    participant Back as Backend (API + Socket)
-    actor Driver as Captain (Driver)
 
-    Rider->>Back: POST /rides/create { pickup, destination, vehicleType }
-    Back->>Back: Calculate fare, generate 4-digit OTP, create Ride (status: pending)
-    Back-->>Driver: Socket.IO emit 'new-ride' to captains room
-    Note over Driver: Captain sees incoming ride banner / popup or views /captain-requests
-    Driver->>Back: POST /rides/confirm { rideId }
-    Back->>Back: Update Ride (status: accepted, captain: captainId)
-    Back-->>Rider: Socket.IO emit 'ride-confirmed'
-    Back-->>Driver: Socket.IO emit 'ride-taken' (informs other drivers)
-    Note over Rider,Driver: Both join ride:${rideId} room; MapLibre loads Captain -> Pickup route
-    Driver->>Back: Socket.IO emit 'update-location' { rideId, location }
-    Back-->>Rider: Socket.IO emit 'driver-location' (Car marker moves live)
-    Note over Driver: Captain arrives at Pickup location
-    Rider-->>Driver: Shares 4-digit OTP displayed on screen
-    Driver->>Back: POST /rides/start-ride { rideId }
-    Back->>Back: Update Ride (status: ongoing)
-    Back-->>Rider: Socket.IO emit 'ride-started'
-    Back-->>Driver: Returns 200 OK
-    Note over Rider,Driver: Route dynamically changes to Captain/Rider -> Destination
-    Note over Driver: Captain UI button switches from "Start Ride" to "Finish Ride"
-    Driver->>Back: POST /rides/end-ride { rideId }
-    Back->>Back: Update Ride (status: completed)
-    Back-->>Rider: Socket.IO emit 'ride-completed'
-    Back-->>Driver: Socket.IO emit 'ride-completed'
-    Note over Rider,Driver: GPS watch clears; Both return to their respective Home screens
+    actor Rider as Rider User
+    participant Back as Backend API and Socket.IO
+    actor Captain as Captain Driver
+
+    Rider->>Back: POST /rides/create
+    Note right of Rider: Pickup, destination, vehicle type
+
+    Back->>Back: Calculate fare
+    Back->>Back: Generate 4 digit OTP
+    Back->>Back: Create ride with pending status
+
+    Back-->>Captain: Socket.IO new-ride
+    Note right of Captain: Captain receives new ride request
+
+    Captain->>Back: POST /rides/confirm
+    Note right of Captain: Sends ride ID
+
+    Back->>Back: Set status to accepted
+    Back->>Back: Assign captain to ride
+
+    Back-->>Rider: Socket.IO ride-confirmed
+    Back-->>Captain: Socket.IO ride-taken
+
+    Note over Rider,Captain: MapLibre displays captain to pickup route
+
+    Captain->>Back: Socket.IO update-location
+    Back-->>Rider: Socket.IO driver-location
+
+    Note over Captain: Captain reaches pickup location
+
+    Rider-->>Captain: Share 4 digit OTP
+
+    Captain->>Back: POST /rides/start-ride
+    Note right of Captain: Sends ride ID
+
+    Back->>Back: Set status to ongoing
+    Back-->>Rider: Socket.IO ride-started
+
+    Note over Rider,Captain: MapLibre changes route to destination
+    Note over Captain: Start Ride button changes to Finish Ride
+
+    Captain->>Back: POST /rides/end-ride
+    Note right of Captain: Sends ride ID
+
+    Back->>Back: Set status to completed
+
+    Back-->>Rider: Socket.IO ride-completed
+    Back-->>Captain: Socket.IO ride-completed
+
+    Note over Rider,Captain: GPS tracking stops
+    Note over Rider,Captain: Both return to their Home screens
 ```
 
 ---

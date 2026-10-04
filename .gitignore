@@ -1,5 +1,5 @@
-.agents
-.postman
-graphify-out
-postman
-node_modules
+.agents/
+.postman/
+graphify-out/
+postman/
+node_modules/
