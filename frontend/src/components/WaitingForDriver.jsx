@@ -45,16 +45,32 @@ const WaitingForDriver = (props) => {
         </div>
       </div>
 
-      {/* Prominent OTP Card */}
-      <div className='my-3 p-3 bg-yellow-50 border-2 border-yellow-400 rounded-xl flex items-center justify-between shadow-xs'>
-        <div>
-          <span className='text-xs font-bold text-yellow-800 uppercase tracking-wider block'>Share OTP with Captain</span>
-          <span className='text-xs text-gray-500'>Share this code when driver arrives</span>
+      {/* Status / OTP Card */}
+      {props.ride?.status === 'ongoing' ? (
+        <div className='my-3 p-3 bg-green-50 border-2 border-green-500 rounded-xl flex items-center justify-between shadow-xs'>
+          <div className='flex items-center gap-2.5'>
+            <span className='relative flex h-3 w-3'>
+              <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75'></span>
+              <span className='relative inline-flex rounded-full h-3 w-3 bg-green-600'></span>
+            </span>
+            <div>
+              <span className='text-xs font-bold text-green-900 uppercase tracking-wider block'>Trip in Progress</span>
+              <span className='text-xs text-green-700'>Heading towards your destination</span>
+            </div>
+          </div>
+          <span className='text-xs font-bold px-2.5 py-1 bg-green-600 text-white rounded-full uppercase'>En Route</span>
         </div>
-        <div className='text-2xl font-black font-mono tracking-widest text-black bg-white px-3 py-1 rounded-lg border border-yellow-300 shadow-inner'>
-          {otp}
+      ) : (
+        <div className='my-3 p-3 bg-yellow-50 border-2 border-yellow-400 rounded-xl flex items-center justify-between shadow-xs'>
+          <div>
+            <span className='text-xs font-bold text-yellow-800 uppercase tracking-wider block'>Share OTP with Captain</span>
+            <span className='text-xs text-gray-500'>Share this code when driver arrives</span>
+          </div>
+          <div className='text-2xl font-black font-mono tracking-widest text-black bg-white px-3 py-1 rounded-lg border border-yellow-300 shadow-inner'>
+            {otp}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Route & Price Details */}
       <div className='flex gap-2 justify-between flex-col items-center'>

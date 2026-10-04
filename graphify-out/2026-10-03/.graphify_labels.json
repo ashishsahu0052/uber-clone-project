@@ -2,12 +2,13 @@
   "0": "App.jsx",
   "1": "app.js",
   "2": "frontend/package.json",
-  "3": "auth.middleware.js",
+  "3": "backend/package.json",
   "4": "ride.controller.js",
   "5": "captain.controller.js",
-  "6": "Frontend HTML Shell",
+  "6": "user.model.js",
   "7": "ride.service.js",
-  "9": "backend/package.json",
+  "8": "Home.jsx",
+  "9": "blacklistToken.model.js",
   "10": "dependencies",
   "11": "Postman Workspace Resources",
   "12": "package.json",
@@ -18,5 +19,8 @@
   "17": "Vite Logo Vector",
   "18": "User API Request",
   "19": "Postman Workspace Globals",
-  "20": "devDependencies"
+  "20": "devDependencies",
+  "21": "user.controller.js",
+  "22": "auth.middleware.js",
+  "23": "captain.model.js"
 }

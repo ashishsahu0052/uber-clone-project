@@ -12,5 +12,6 @@ router.get('/get-suggestion',
     authMiddleware.authUser,
     mapController.getSuggestion
 )
+router.get('/get-route', mapController.getRoute)
 
 module.exports = router

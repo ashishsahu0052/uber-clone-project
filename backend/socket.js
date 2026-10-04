@@ -13,14 +13,14 @@ function initializeSocket(server) {
     });
 
     io.on('connection', (socket) => {
-        console.log(`Client connected: ${socket.id}`);
+        //console.log(`Client connected: ${socket.id}`);
 
         socket.on('join', async (data) => {
             try {
                 const { userId, userType } = data;
                 if (!userId || !userType) return;
 
-                console.log(`Join event received: userId=${userId}, userType=${userType}, socketId=${socket.id}`);
+                // console.log(`Join event received: userId=${userId}, userType=${userType}, socketId=${socket.id}`);
 
                 if (userType === 'user') {
                     await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
@@ -42,7 +42,7 @@ function initializeSocket(server) {
         socket.on('join-ride', ({ rideId }) => {
             if (rideId) {
                 socket.join(`ride:${rideId}`);
-                console.log(`Socket ${socket.id} joined room: ride:${rideId}`);
+                //console.log(`Socket ${socket.id} joined room: ride:${rideId}`);
             }
         });
 
@@ -69,7 +69,7 @@ function initializeSocket(server) {
         });
 
         socket.on('disconnect', async () => {
-            console.log(`Client disconnected: ${socket.id}`);
+            //console.log(`Client disconnected: ${socket.id}`);
             try {
                 await userModel.updateMany({ socketId: socket.id }, { socketId: null });
                 await captainModel.updateMany({ socketId: socket.id }, { socketId: null });
@@ -107,6 +107,12 @@ function sendMessageToCaptains(event, data) {
     }
 }
 
+function sendMessageToRideRoom(rideId, event, data) {
+    if (io && rideId) {
+        io.to(`ride:${rideId}`).emit(event, data);
+    }
+}
+
 function broadcastEvent(event, data) {
     if (io) {
         io.emit(event, data);
@@ -119,5 +125,6 @@ module.exports = {
     sendMessageToUser,
     sendMessageToCaptain,
     sendMessageToCaptains,
+    sendMessageToRideRoom,
     broadcastEvent
 };

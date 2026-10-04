@@ -20,7 +20,7 @@ const DriverLocation = ({ rideId, onLocationUpdate }) => {
                 lng: longitude
             }
 
-            console.log(`[Captain GPS] Emitting location for ride:${rideId}`, locationData)
+            // console.log(`[Captain GPS] Emitting location for ride:${rideId}`, locationData)
 
             socket.emit('update-location', {
                 rideId,
@@ -52,7 +52,7 @@ const DriverLocation = ({ rideId, onLocationUpdate }) => {
             if (watchIdRef.current !== null) {
                 navigator.geolocation.clearWatch(watchIdRef.current)
                 watchIdRef.current = null
-                console.log(`[DriverLocation] Cleared watchPosition for ride:${rideId}`)
+                //  console.log(`[DriverLocation] Cleared watchPosition for ride:${rideId}`)
             }
         }
     }, [rideId, socket, onLocationUpdate])

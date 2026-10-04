@@ -99,16 +99,46 @@ const Home = () => {
         return
       }
 
+      // Update rider's ride state and keep LiveRideMap mounted
+      setRide(startedRide)
+      setWaitingForDriver(true)
+      setDetailsExpanded(true)
+    }
+
+    const handleRideCompleted = (completedRide) => {
+      console.log('User received ride-completed:', completedRide)
+      const belongsToThisRide = (currentRideIdRef.current && completedRide?._id === currentRideIdRef.current) || (ride?._id && completedRide?._id === ride._id)
+      const rideUserId = completedRide?.userId?._id || completedRide?.userId
+      const belongsToThisUser = user?._id && rideUserId && rideUserId.toString() === user._id.toString()
+
+      if (currentRideIdRef.current && !belongsToThisRide && !belongsToThisUser) {
+        return
+      }
+
+      // Return rider to idle home
+      setRide(null)
+      currentRideIdRef.current = null
       setWaitingForDriver(false)
-      navigate('/riding', { state: { ride: startedRide } })
+      setVehicleFound(false)
+      setConfirmRidePanel(false)
+      setVehiclePanel(false)
+      setPanelOpen(false)
+      setPickup('')
+      setDestination('')
+      setFare({})
+      alert('Ride completed! Thank you for riding with Uber.')
     }
 
     socket.on('ride-confirmed', handleRideConfirmed)
     socket.on('ride-started', handleRideStarted)
+    socket.on('ride-completed', handleRideCompleted)
+    socket.on('ride-ended', handleRideCompleted)
 
     return () => {
       socket.off('ride-confirmed', handleRideConfirmed)
       socket.off('ride-started', handleRideStarted)
+      socket.off('ride-completed', handleRideCompleted)
+      socket.off('ride-ended', handleRideCompleted)
     }
   }, [socket, navigate, user?._id, ride?._id])
 

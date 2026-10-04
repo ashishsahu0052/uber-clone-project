@@ -105,3 +105,27 @@ module.exports.getSuggestion = async (input) => {
     ];
     return fallbacks.map(name => ({ display_name: name, description: name }));
 };
+
+module.exports.getRoute = async (startLng, startLat, endLng, endLat) => {
+    try {
+        const response = await axios.get(
+            `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}`,
+            {
+                params: {
+                    overview: "full",
+                    geometries: "geojson",
+                    steps: true
+                },
+                timeout: 6000
+            }
+        );
+
+        if (response.data && response.data.code === "Ok" && response.data.routes && response.data.routes[0]) {
+            return response.data.routes[0];
+        }
+    } catch (error) {
+        console.warn("OSRM getRoute error in maps.service.js:", error.message);
+    }
+    return null;
+};
+

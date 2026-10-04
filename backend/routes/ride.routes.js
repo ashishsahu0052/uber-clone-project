@@ -35,7 +35,7 @@ router.get('/start-ride',
 router.post('/start-ride',
     authMiddleware.authCaptain,
     body('rideId').isMongoId().withMessage('Invalid ride id'),
-    body('otp').isString().isLength({ min: 4, max: 6 }).withMessage('Invalid OTP'),
+    body('otp').optional().isString().isLength({ min: 4, max: 6 }).withMessage('Invalid OTP'),
     rideController.startRide
 );
 

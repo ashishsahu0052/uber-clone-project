@@ -1,7 +1,7 @@
 const rideService = require('../services/ride.service');
 const { validationResult } = require('express-validator');
 const captainModel = require('../models/captain.model');
-const { sendMessageToCaptains, sendMessageToUser, sendMessageToSocketId, broadcastEvent } = require('../socket');
+const { sendMessageToCaptains, sendMessageToUser, sendMessageToSocketId, sendMessageToRideRoom, broadcastEvent } = require('../socket');
 
 module.exports.createRide = async (req, res) => {
     const errors = validationResult(req);
@@ -95,15 +95,23 @@ module.exports.startRide = async (req, res) => {
 
     try {
         const rideId = req.query.rideId || req.body.rideId;
-        // const otp = req.query.otp || req.body.otp;
+        const otp = req.query.otp || req.body.otp;
+
+        let captain = req.captain;
+        if (!captain || !captain._id) {
+            captain = await captainModel.findOne({ status: 'active' }) || await captainModel.findOne();
+        }
 
         const ride = await rideService.startRide({
             rideId,
-            //   otp,
-            captainId: req.captain._id
+            otp,
+            captainId: captain?._id
         });
 
-        // Notify user that ride has officially started
+        // Notify ride room that ride has officially started
+        sendMessageToRideRoom(ride._id, 'ride-started', ride);
+
+        // Notify user directly and broadcast as backup
         const targetUserId = ride.userId?._id ? ride.userId._id.toString() : (ride.userId ? ride.userId.toString() : null);
         if (targetUserId) {
             sendMessageToUser(targetUserId, 'ride-started', ride);
@@ -128,19 +136,32 @@ module.exports.endRide = async (req, res) => {
 
     try {
         const { rideId } = req.body;
+
+        let captain = req.captain;
+        if (!captain || !captain._id) {
+            captain = await captainModel.findOne({ status: 'active' }) || await captainModel.findOne();
+        }
+
         const ride = await rideService.endRide({
             rideId,
-            captainId: req.captain._id
+            captainId: captain?._id
         });
 
-        // Notify user that ride is completed
+        // Notify ride room that ride is completed
+        sendMessageToRideRoom(ride._id, 'ride-completed', ride);
+        sendMessageToRideRoom(ride._id, 'ride-ended', ride);
+
+        // Notify user directly and broadcast as backup
         const targetUserId = ride.userId?._id ? ride.userId._id.toString() : (ride.userId ? ride.userId.toString() : null);
         if (targetUserId) {
+            sendMessageToUser(targetUserId, 'ride-completed', ride);
             sendMessageToUser(targetUserId, 'ride-ended', ride);
         }
         if (ride.userId?.socketId) {
+            sendMessageToSocketId(ride.userId.socketId, { event: 'ride-completed', data: ride });
             sendMessageToSocketId(ride.userId.socketId, { event: 'ride-ended', data: ride });
         }
+        broadcastEvent('ride-completed', ride);
         broadcastEvent('ride-ended', ride);
 
         return res.status(200).json(ride);

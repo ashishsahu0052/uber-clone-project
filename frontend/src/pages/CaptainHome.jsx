@@ -18,6 +18,8 @@ const CaptainHome = () => {
   const [acceptedRide, setAcceptedRide] = useState(null)
   const [pendingRides, setPendingRides] = useState([])
   const [captainDetailsExpanded, setCaptainDetailsExpanded] = useState(true)
+  const [isStartingRide, setIsStartingRide] = useState(false)
+  const [isFinishingRide, setIsFinishingRide] = useState(false)
 
   const ridePopupPanelRef = useRef(null)
   const confirmRidePopupPanelRef = useRef(null)
@@ -93,6 +95,37 @@ const CaptainHome = () => {
     }
   }, [socket])
 
+  // Listen to ride lifecycle events (ride-started, ride-completed, ride-ended)
+  useEffect(() => {
+    if (!socket) return
+
+    const handleRideStarted = (startedRide) => {
+      console.log('Captain received ride-started socket event:', startedRide)
+      if (acceptedRide?._id === startedRide?._id) {
+        setAcceptedRide(startedRide)
+      }
+    }
+
+    const handleRideCompleted = (completedRide) => {
+      console.log('Captain received ride-completed socket event:', completedRide)
+      if (acceptedRide?._id === completedRide?._id) {
+        setAcceptedRide(null)
+        setCurrentRide(null)
+        setCaptainDetailsExpanded(true)
+      }
+    }
+
+    socket.on('ride-started', handleRideStarted)
+    socket.on('ride-completed', handleRideCompleted)
+    socket.on('ride-ended', handleRideCompleted)
+
+    return () => {
+      socket.off('ride-started', handleRideStarted)
+      socket.off('ride-completed', handleRideCompleted)
+      socket.off('ride-ended', handleRideCompleted)
+    }
+  }, [socket, acceptedRide?._id])
+
   const acceptRide = async (rideToAccept) => {
     const targetRide = rideToAccept || currentRide
     if (!targetRide?._id) return
@@ -121,6 +154,57 @@ const CaptainHome = () => {
       console.error("Error accepting ride:", error)
       alert(error.response?.data?.message || 'Ride could not be accepted')
       setRidePopupPanel(false)
+    }
+  }
+
+  const startRide = async () => {
+    if (!acceptedRide?._id) return
+
+    try {
+      setIsStartingRide(true)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/start-ride`, {
+        rideId: acceptedRide._id
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+
+      if (response.status === 200) {
+        setAcceptedRide(response.data)
+      }
+    } catch (error) {
+      console.error("Error starting ride:", error)
+      alert(error.response?.data?.message || 'Failed to start ride')
+    } finally {
+      setIsStartingRide(false)
+    }
+  }
+
+  const finishRide = async () => {
+    if (!acceptedRide?._id) return
+
+    try {
+      setIsFinishingRide(true)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/end-ride`, {
+        rideId: acceptedRide._id
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+
+      if (response.status === 200) {
+        setAcceptedRide(null)
+        setCurrentRide(null)
+        setCaptainDetailsExpanded(true)
+        alert('Ride completed successfully!')
+      }
+    } catch (error) {
+      console.error("Error ending ride:", error)
+      alert(error.response?.data?.message || 'Failed to finish ride')
+    } finally {
+      setIsFinishingRide(false)
     }
   }
 
@@ -303,17 +387,46 @@ const CaptainHome = () => {
             </div>
           </div>
 
-          {/* Phase 1 Start Ride Button (UI ONLY - no backend/socket logic in Phase 1) */}
-          <button
-            type="button"
-            onClick={() => {
-              alert("Start Ride functionality will be implemented in Phase 2.")
-            }}
-            className='w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 px-4 rounded-xl text-lg shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2'
-          >
-            <i className="ri-play-circle-fill text-xl"></i>
-            <span>Start Ride</span>
-          </button>
+          {/* Dynamic Start Ride / Finish Ride Action Button */}
+          {acceptedRide.status === 'ongoing' ? (
+            <button
+              type="button"
+              onClick={finishRide}
+              disabled={isFinishingRide}
+              className='w-full mt-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-3.5 px-4 rounded-xl text-lg shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2'
+            >
+              {isFinishingRide ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin text-xl"></i>
+                  <span>Finishing Ride...</span>
+                </>
+              ) : (
+                <>
+                  <i className="ri-checkbox-circle-fill text-xl"></i>
+                  <span>Finish Ride</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={startRide}
+              disabled={isStartingRide}
+              className='w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 px-4 rounded-xl text-lg shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2'
+            >
+              {isStartingRide ? (
+                <>
+                  <i className="ri-loader-4-line animate-spin text-xl"></i>
+                  <span>Starting Ride...</span>
+                </>
+              ) : (
+                <>
+                  <i className="ri-play-circle-fill text-xl"></i>
+                  <span>Start Ride</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 

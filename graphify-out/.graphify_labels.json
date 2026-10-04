@@ -4,10 +4,10 @@
   "2": "frontend/package.json",
   "3": "backend/package.json",
   "4": "ride.controller.js",
-  "5": "captain.controller.js",
-  "6": "Frontend HTML Shell",
-  "7": "ride.service.js",
-  "8": "Home.jsx",
+  "5": "auth.middleware.js",
+  "6": "ride.service.js",
+  "7": "🚖 Uber Clone — Full-Stack Real-Time Ride Hailing & Live Navigation Platform",
+  "8": "captain.controller.js",
   "9": "dependencies",
   "10": "dependencies",
   "11": "Postman Workspace Resources",
@@ -20,10 +20,7 @@
   "18": "User API Request",
   "19": "Postman Workspace Globals",
   "20": "devDependencies",
-  "21": "user.controller.js",
-  "22": "captain.routes.js",
-  "23": "user.routes.js",
-  "24": "express-validator",
-  "25": "map.routes.js",
-  "26": "ride.routes.js"
+  "21": "user.routes.js",
+  "22": "map.routes.js",
+  "23": "ride.routes.js"
 }

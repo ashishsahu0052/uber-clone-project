@@ -69,3 +69,26 @@ module.exports.getSuggestion = async (req, res) => {
         res.status(500).json({ message: "unable to get suggestions" })
     }
 }
+
+module.exports.getRoute = async (req, res) => {
+    try {
+        const { startLng, startLat, endLng, endLat } = req.query;
+
+        if (!startLng || !startLat || !endLng || !endLat) {
+            return res.status(400).json({
+                message: "startLng, startLat, endLng, and endLat are all required"
+            });
+        }
+
+        const route = await mapService.getRoute(startLng, startLat, endLng, endLat);
+        if (route) {
+            return res.status(200).json(route);
+        }
+
+        return res.status(404).json({ message: "Route not found" });
+    } catch (error) {
+        console.error("Map controller getRoute error:", error);
+        return res.status(500).json({ message: error.message });
+    }
+}
+
