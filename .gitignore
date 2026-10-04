@@ -1,5 +1,8 @@
+node_modules/
+.env
+.env.*
 .agents/
 .postman/
-graphify-out/
 postman/
-node_modules/
+graphify-out/
+.gitignore/
