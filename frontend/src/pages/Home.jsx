@@ -16,7 +16,7 @@ const Home = () => {
   const [pickup, setPickup] = useState('')
   const [destination, setDestination] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
-  
+
   const vehiclePanelRef = useRef(null)
   const confirmRidePanelRef = useRef(null)
   const vehicleFoundRef = useRef(null)
@@ -315,8 +315,8 @@ const Home = () => {
 
   return (
     <div className='h-screen relative overflow-hidden'>
-      <img className='w-16 absolute left-5 top-5 z-10' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="Uber" />
-      
+      <img src="etaxi-logo.svg" alt="Etaxi Creative Logo" />
+
       {/* Live Map shown ONLY when captain is assigned; otherwise static map */}
       {waitingForDriver && ride ? (
         <div className='h-screen w-screen absolute inset-0 z-0'>
